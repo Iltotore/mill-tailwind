@@ -1,0 +1,16 @@
+import $ivy.`io.github.iltotore::mill-tailwind::0.0.0-0-no-vcs-SNAPSHOT`
+
+import mill._, scalalib._
+import io.github.iltotore.tailwind.TailwindModule
+
+object `package` extends RootModule with ScalaModule with TailwindModule {
+
+  def scalaVersion = "3.7.1"
+
+  def tailwindVersion = "4.1.8"
+
+  def ivyDeps = Agg(
+    ivy"com.lihaoyi::cask:0.9.7",
+    ivy"com.lihaoyi::scalatags:0.13.1"
+  )
+}
