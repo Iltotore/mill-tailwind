@@ -27,7 +27,7 @@ trait BaseModule extends ScalaModule with CiReleaseModule {
     )
 }
 
-object tailwind extends BaseModule {
+object `package` extends RootModule with BaseModule {
 
   def scalaVersion = versions.scala
 
