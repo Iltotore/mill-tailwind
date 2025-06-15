@@ -8,5 +8,4 @@ enum TodoMsg:
   case SetEntryTitle(id: Int, title: String)
   case SetEntryDescription(id: Int, description: String)
   case ToogleCompleted(id: Int)
-  case ToogleOpen(id: Int)
   case NoOp
