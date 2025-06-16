@@ -1,4 +1,4 @@
-import $ivy.`io.github.iltotore::mill-tailwind::0.0.0-0-no-vcs-SNAPSHOT`
+import $ivy.`io.github.iltotore::mill-tailwind::0.1.0`
 
 import mill._, scalalib._
 import io.github.iltotore.tailwind.TailwindModule
