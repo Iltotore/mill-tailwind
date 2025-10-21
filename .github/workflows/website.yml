@@ -41,10 +41,10 @@ jobs:
           java-version: '17'
 
       - name: Build website
-        run: ./millw -i docJar
+        run: ./millw -i main[1.0].docJar
 
       - uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: out/docJar.dest/javadoc
+          path: out/main/1.0/docJar.dest/javadoc
 
       - uses: actions/deploy-pages@v4.0.5
