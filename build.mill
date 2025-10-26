@@ -43,4 +43,26 @@ trait BaseModule extends ScalaModule with SonatypeCentralPublishModule with Cros
 object `package` extends Cross[BaseModule](
   Versions("3.7.3", "1.0.6", "1"),
   Versions("2.13.16", "0.11.0", "0.11"),
-)
+):
+
+  def buildPages() = Task.Command:
+    val examplesDir = Task.dest / "examples"
+    os.makeDir.all(examplesDir)
+    os.copy.over(segmentsToModules(List("1")).docJar().path / os.up / "docs", Task.dest)
+
+    
+    def tailwindOut(examplePath: os.Path) = examplePath / "out" / "tailwindCSSOutput.dest" / "public" / "output.css"
+    def fastLinkJSOut(examplePath: os.Path) = examplePath / "out" / "fastLinkJS.dest" / "main.js"
+
+    os.list(moduleDir / "examples")
+      .filter(path => os.isDir(path) && os.exists(path / "build.mill") && os.exists(path / "index.html"))
+      .map(path => (path, os.proc(moduleDir / "millw", "-i", "fastLinkJS").spawn(cwd = path)))
+      .foreach: (path, process) =>
+        val exampleDir = examplesDir / path.baseName
+        process.waitFor()
+        os.copy.into(path / "index.html", exampleDir, createFolders = true)
+        os.copy.into(path / "tyrianApp.js", exampleDir, createFolders = true)
+        os.copy(tailwindOut(path), tailwindOut(exampleDir), createFolders = true)
+        os.copy(fastLinkJSOut(path), fastLinkJSOut(exampleDir), createFolders = true)
+
+    PathRef(Task.dest)

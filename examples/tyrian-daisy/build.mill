@@ -1,4 +1,4 @@
-//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.0-3-29505f-DIRTY31db4037-SNAPSHOT"]
+//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.1-2-541a1c-DIRTYbca2bf1c-SNAPSHOT"]
 
 import mill._, scalalib._,scalajslib._
 import io.github.iltotore.tailwind.TailwindModule
