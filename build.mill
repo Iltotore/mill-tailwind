@@ -1,16 +1,17 @@
 import mill.*, scalalib.*, publish.*
+import mill.util.VcsVersion
 
 case class Versions(scala: String, mill: String, millPlatform: String)
 
 given Cross.ToSegments[Versions] = Cross.ToSegments(versions => List(versions.millPlatform))
 
-trait BaseModule extends ScalaModule with PublishModule with Cross.Module[Versions]:
+trait BaseModule extends ScalaModule with SonatypeCentralPublishModule with Cross.Module[Versions]:
 
   def scalaVersion = crossValue.scala
 
-  def publishVersion = ??? //TODO
+  def publishVersion = VcsVersion.vcsState().format(untaggedSuffix = "-SNAPSHOT")
 
-  def sources = Task.Sources(s"mill-${crossValue.millPlatform}")
+  def sources = Task.Sources(moduleDir / s"mill-${crossValue.millPlatform}")
 
   def artifactName = "mill-tailwind"
 
