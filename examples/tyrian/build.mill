@@ -1,6 +1,6 @@
-//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.1-2-541a1c-DIRTYbca2bf1c-SNAPSHOT"]
+//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.1"]
 
-import mill._, scalalib._,scalajslib._
+import mill.*, scalalib.*, scalajslib.*
 import io.github.iltotore.tailwind.TailwindModule
 
 object `package` extends ScalaJSModule with TailwindModule:
@@ -9,7 +9,7 @@ object `package` extends ScalaJSModule with TailwindModule:
 
   def scalaJSVersion = "1.19.0"
 
-  def tailwindVersion = "4.1.8"
+  def tailwindVersion = "4.1.16"
 
   def mvnDeps = Seq(mvn"io.indigoengine::tyrian-io::0.14.0")
 
