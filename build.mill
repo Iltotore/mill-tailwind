@@ -1,39 +1,36 @@
-import mill.define.Ctx
-import mill.define.Cross.ToSegments
-import $ivy.`io.chris-kipp::mill-ci-release::0.2.1`
-import mill._, scalalib._, publish._
-import io.kipp.mill.ci.release.CiReleaseModule
+import mill.*, scalalib.*, publish.*
+import mill.util.VcsVersion
 
 case class Versions(scala: String, mill: String, millPlatform: String)
 
-implicit val versionsToSegments: ToSegments[Versions] =
-  new ToSegments[Versions](versions => List(versions.millPlatform))
+given Cross.ToSegments[Versions] = Cross.ToSegments(versions => List(versions.millPlatform))
 
-trait BaseModule extends ScalaModule with CiReleaseModule with Cross.Module[Versions] {
+trait BaseModule extends ScalaModule with SonatypeCentralPublishModule with Cross.Module[Versions]:
 
   def scalaVersion = crossValue.scala
 
-  override implicit def millModuleBasePath: Ctx.BasePath =
-    Ctx.BasePath(millOuterCtx.millSourcePath / os.up / s"mill-${crossValue.millPlatform}")
+  def publishVersion = VcsVersion.vcsState().format(untaggedSuffix = "-SNAPSHOT")
+
+  def sources = Task.Sources(moduleDir / s"mill-${crossValue.millPlatform}")
 
   def artifactName = "mill-tailwind"
 
-  def compileIvyDeps =
+  def compileMvnDeps =
     if(crossValue.millPlatform.toDouble >= 1.0)
-      Agg(
-        ivy"com.lihaoyi::mill-libs:${crossValue.mill}"
+      Seq(
+        mvn"com.lihaoyi::mill-libs:${crossValue.mill}"
       )
     else
-      Agg(
-        ivy"com.lihaoyi::mill-main:${crossValue.mill}",
-        ivy"com.lihaoyi::mill-scalalib:${crossValue.mill}"
+      Seq(
+        mvn"com.lihaoyi::mill-main:${crossValue.mill}",
+        mvn"com.lihaoyi::mill-scalalib:${crossValue.mill}"
       )
 
-  def artifactSuffix = T { s"_mill${crossValue.millPlatform}${super.artifactSuffix()}" }
+  def artifactSuffix = s"_mill${crossValue.millPlatform}${super.artifactSuffix()}"
 
   def pomSettings =
     PomSettings(
-      description = "Tailwind & DaisyUI plugin for Mill, without Node",
+      description = "TailwindCSS plugin for Mill, without Node",
       organization = "io.github.iltotore",
       url = "https://github.com/Iltotore/mill-tailwind",
       licenses = Seq(License.`Apache-2.0`),
@@ -42,9 +39,30 @@ trait BaseModule extends ScalaModule with CiReleaseModule with Cross.Module[Vers
         Developer("Iltotore", "Raphaël FROMENTIN", "https://github.com/Iltotore")
       )
     )
-}
 
-object main extends  Cross[BaseModule](
+object `package` extends Cross[BaseModule](
   Versions("3.7.3", "1.0.6", "1"),
   Versions("2.13.16", "0.11.0", "0.11"),
-)
+):
+
+  def buildPages() = Task.Command:
+    val examplesDir = Task.dest / "examples"
+    os.makeDir.all(examplesDir)
+    os.copy.over(segmentsToModules(List("1")).docJar().path / os.up / "docs", Task.dest)
+
+    
+    def tailwindOut(examplePath: os.Path) = examplePath / "out" / "tailwindCSSOutput.dest" / "public" / "output.css"
+    def fastLinkJSOut(examplePath: os.Path) = examplePath / "out" / "fastLinkJS.dest" / "main.js"
+
+    os.list(moduleDir / "examples")
+      .filter(path => os.isDir(path) && os.exists(path / "build.mill") && os.exists(path / "index.html"))
+      .map(path => (path, os.proc(moduleDir / "millw", "-i", "fastLinkJS").spawn(cwd = path)))
+      .foreach: (path, process) =>
+        val exampleDir = examplesDir / path.baseName
+        process.waitFor()
+        os.copy.into(path / "index.html", exampleDir, createFolders = true)
+        os.copy.into(path / "tyrianApp.js", exampleDir, createFolders = true)
+        os.copy(tailwindOut(path), tailwindOut(exampleDir), createFolders = true)
+        os.copy(fastLinkJSOut(path), fastLinkJSOut(exampleDir), createFolders = true)
+
+    PathRef(Task.dest)

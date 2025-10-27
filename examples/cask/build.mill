@@ -1,16 +1,15 @@
-import $ivy.`io.github.iltotore::mill-tailwind::0.1.0`
+//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.1"]
 
-import mill._, scalalib._
+import mill.*, scalalib.*, scalajslib.*
 import io.github.iltotore.tailwind.TailwindModule
 
-object `package` extends RootModule with ScalaModule with TailwindModule {
+object `package` extends ScalaModule, TailwindModule:
 
   def scalaVersion = "3.7.1"
 
-  def tailwindVersion = "4.1.8"
+  def tailwindVersion = "4.1.16"
 
-  def ivyDeps = Agg(
-    ivy"com.lihaoyi::cask:0.9.7",
-    ivy"com.lihaoyi::scalatags:0.13.1"
+  def mvnDeps = Seq(
+    mvn"com.lihaoyi::cask:0.9.7",
+    mvn"com.lihaoyi::scalatags:0.13.1"
   )
-}

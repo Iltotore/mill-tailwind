@@ -1,17 +1,16 @@
-import $ivy.`io.github.iltotore::mill-tailwind::0.1.0`
+//| mvnDeps: ["io.github.iltotore::mill-tailwind::0.1.1"]
 
-import mill._, scalalib._,scalajslib._
+import mill.*, scalalib.*, scalajslib.*
 import io.github.iltotore.tailwind.TailwindModule
 
-object `package` extends RootModule with ScalaJSModule with TailwindModule {
+object `package` extends ScalaJSModule with TailwindModule:
 
   def scalaVersion = "3.7.1"
 
   def scalaJSVersion = "1.19.0"
 
-  def tailwindVersion = "4.1.8"
+  def tailwindVersion = "4.1.16"
 
-  def ivyDeps = Agg(ivy"io.indigoengine::tyrian-io::0.14.0")
+  def mvnDeps = Seq(mvn"io.indigoengine::tyrian-io::0.14.0")
 
-  override def moduleKind = T(mill.scalajslib.api.ModuleKind.ESModule)
-}
+  override def moduleKind = Task(mill.scalajslib.api.ModuleKind.ESModule)
